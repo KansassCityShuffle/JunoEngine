@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "detectionwidget.h"
 #include "slamwidget.h"
+#include <QSplitter>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -26,8 +27,12 @@ MainWindow::MainWindow(QWidget *parent) :
     sw->setFormat(format);
     sw->resize(QSize(256, 128));
 
-    ui->horizontalLayout->addWidget(dw);
-    ui->horizontalLayout->addWidget(sw);
+    QSplitter *splitter = new QSplitter();
+    splitter->setOrientation(Qt::Horizontal);
+    splitter->addWidget(dw);
+    splitter->addWidget(sw);
+
+    ui->verticalLayout->addWidget(splitter);
 
 }
 

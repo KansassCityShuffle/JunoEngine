@@ -138,7 +138,7 @@ void SlamWidget::teardownGL()
 void SlamWidget::update()
 {
   // Update instance information
-  m_transform.rotate(0.05f, QVector3D(0.f, 1.f, 0.f));
+  m_transform.rotate(0.5f, QVector3D(0.f, 1.f, 0.f));
 
   // Schedule a redraw
   QOpenGLWidget::update();
