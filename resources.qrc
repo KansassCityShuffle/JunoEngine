@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file>shaders/simple.frag</file>
         <file>shaders/simple.vert</file>
+        <file>models/project_sphere.mtl</file>
+        <file>models/project_sphere.obj</file>
     </qresource>
 </RCC>

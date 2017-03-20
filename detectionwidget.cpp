@@ -56,8 +56,57 @@ static const Vertex sg_vertexes[] = {
 
 DetectionWidget::DetectionWidget()
 {
-  m_transform.translate(0.0f, 0.0f, -5.0f);
+    angleX = 0.f;
+    angleY = 0.f;
+    fov = 70.f;
 }
+
+void DetectionWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    if (rotateCam)
+    {
+        float xAmt = float(event->x() - prevMouseX);
+        float yAmt = float(event->y() - prevMouseY);
+
+        angleX += xAmt * 0.01f;
+        angleY -= yAmt * 0.01f;
+
+        if (angleY > 1.5f) angleY = 1.5f;
+        if (angleY < -1.5f) angleY = -1.5f;
+
+        prevMouseX = event->x();
+        prevMouseY = event->y();
+
+    }
+}
+
+void DetectionWidget::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == 2) // right button
+    {
+        prevMouseX = event->x();
+        prevMouseY = event->y();
+        rotateCam = true;
+    }
+}
+
+void DetectionWidget::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() == 2) // right button
+    {
+        prevMouseX = -1;
+        prevMouseY = -1;
+        rotateCam = false;
+    }
+}
+
+void DetectionWidget::wheelEvent(QWheelEvent *event)
+{
+    fov -= event->angleDelta().y() * 0.05f;
+    if (fov > 160.f) fov = 160.f;
+    if (fov < 20.f) fov = 20.f;
+}
+
 
 void DetectionWidget::initializeGL()
 {
@@ -69,6 +118,7 @@ void DetectionWidget::initializeGL()
 
   // Set global information
   glEnable(GL_CULL_FACE);
+//  glCullFace(GL_FRONT);
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
   // Application-specific initialization
@@ -102,19 +152,28 @@ void DetectionWidget::initializeGL()
     m_object.release();
     m_vertex.release();
     m_program->release();
+
+    /*
+    QVector < QVector3D > & out_vertices,
+    QVector < QVector2D > & out_uvs,
+    QVector < QVector3D > & out_normals
+    */
+
   }
 }
 
 void DetectionWidget::resizeGL(int width, int height)
 {
-  m_projection.setToIdentity();
-  m_projection.perspective(45.0f, width / float(height), 0.0f, 1000.0f);
 }
 
 void DetectionWidget::paintGL()
 {
-  // Clear
-  glClear(GL_COLOR_BUFFER_BIT);
+
+  m_projection.setToIdentity();
+  m_projection.perspective(fov, this->width() / float(this->height()), 0.0f, 1000.0f);
+  m_projection.lookAt(QVector3D(0.f, 0.f, 0.f),
+                      QVector3D(cos(angleY) * cos(angleX), sin(angleY), cos(angleY)*sin(angleX)),
+                      QVector3D(0.f, 1.f, 0.f));
 
   // Render using our shader
   m_program->bind();
@@ -122,7 +181,35 @@ void DetectionWidget::paintGL()
   {
     m_object.bind();
     m_program->setUniformValue(u_modelToWorld, m_transform.toMatrix());
-    glDrawArrays(GL_TRIANGLES, 0, sizeof(sg_vertexes) / sizeof(sg_vertexes[0]));
+
+    // Clear
+    glClear(GL_COLOR_BUFFER_BIT);
+    // test positions simples visu
+    {
+        m_transform.setTranslation( -2.f,  0.f,  0.f);
+        m_program->setUniformValue(u_modelToWorld, m_transform.toMatrix());
+        glDrawArrays(GL_TRIANGLES, 0, sizeof(sg_vertexes) / sizeof(sg_vertexes[0]));
+
+        m_transform.setTranslation( 2.f,  0.f,  0.f);
+        m_program->setUniformValue(u_modelToWorld, m_transform.toMatrix());
+        glDrawArrays(GL_TRIANGLES, 0, sizeof(sg_vertexes) / sizeof(sg_vertexes[0]));
+
+        m_transform.setTranslation( 0.f,  2.f,  0.f);
+        m_program->setUniformValue(u_modelToWorld, m_transform.toMatrix());
+        glDrawArrays(GL_TRIANGLES, 0, sizeof(sg_vertexes) / sizeof(sg_vertexes[0]));
+
+        m_transform.setTranslation( 0.f, -2.f,  0.f);
+        m_program->setUniformValue(u_modelToWorld, m_transform.toMatrix());
+        glDrawArrays(GL_TRIANGLES, 0, sizeof(sg_vertexes) / sizeof(sg_vertexes[0]));
+
+        m_transform.setTranslation( 0.f,  0.f,  2.f);
+        m_program->setUniformValue(u_modelToWorld, m_transform.toMatrix());
+        glDrawArrays(GL_TRIANGLES, 0, sizeof(sg_vertexes) / sizeof(sg_vertexes[0]));
+
+        m_transform.setTranslation( 0.f,  0.f, -2.f);
+        m_program->setUniformValue(u_modelToWorld, m_transform.toMatrix());
+        glDrawArrays(GL_TRIANGLES, 0, sizeof(sg_vertexes) / sizeof(sg_vertexes[0]));
+    }
     m_object.release();
   }
   m_program->release();
@@ -139,7 +226,7 @@ void DetectionWidget::teardownGL()
 void DetectionWidget::update()
 {
   // Update instance information
-  m_transform.rotate(0.05f, QVector3D(0.f, -1.f, 0.f));
+//  m_transform.rotate(0.05f, QVector3D(0.f, -1.f, 0.f));
 
   // Schedule a redraw
   QOpenGLWidget::update();
