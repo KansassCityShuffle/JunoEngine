@@ -118,7 +118,6 @@ void DetectionWidget::initializeGL()
 
   // Set global information
   glEnable(GL_CULL_FACE);
-//  glCullFace(GL_FRONT);
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
   // Application-specific initialization
@@ -230,20 +229,6 @@ void DetectionWidget::update()
 
   // Schedule a redraw
   QOpenGLWidget::update();
-}
-
-void DetectionWidget::exposeEvent(QExposeEvent *ev)
-{
-  if (ev->region() != m_cachedRegion)
-  {
-    m_cachedRegion = ev->region();
-    //QOpenGLWidget::exposeEvent(ev);
-  }
-  else
-  {
-    ev->ignore();
-  }
-
 }
 
 /*******************************************************************************

@@ -2,16 +2,20 @@
 #define SLAMWIDGET_H
 
 #include <QOpenGLFunctions>
+#include <QOpenGLFunctions_4_0_Core>
 #include <QOpenGLWidget>
 #include <QOpenGLBuffer>
 #include <QOpenGLVertexArrayObject>
 #include <QMatrix4x4>
+#include <QVector2D>
+#include <QVector>
+#include <QHash>
 #include "transform3d.h"
 
 class QExposeEvent;
 class QOpenGLShaderProgram;
 
-class SlamWidget : public QOpenGLWidget, protected QOpenGLFunctions
+class SlamWidget : public QOpenGLWidget, protected QOpenGLFunctions_4_0_Core
 {
     Q_OBJECT
 
@@ -26,9 +30,21 @@ protected slots:
   void update();
 
 protected:
-  void exposeEvent(QExposeEvent *ev);
+  void mouseMoveEvent(QMouseEvent *event);
+  void mousePressEvent(QMouseEvent *event);
+  void mouseReleaseEvent(QMouseEvent *event);
+  void wheelEvent(QWheelEvent *event);
 
 private:
+  bool rotateCam;
+  int prevMouseX;
+  int prevMouseY;
+  float angleX;
+  float angleY;
+  float fov;
+  float distance;
+  QVector<QVector2D> mapOffsets;
+
   // OpenGL State Information
   QOpenGLBuffer m_vertex;
   QOpenGLVertexArrayObject m_object;

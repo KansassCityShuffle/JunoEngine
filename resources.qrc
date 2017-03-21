@@ -4,5 +4,7 @@
         <file>shaders/simple.vert</file>
         <file>models/project_sphere.mtl</file>
         <file>models/project_sphere.obj</file>
+        <file>shaders/slam.frag</file>
+        <file>shaders/slam.vert</file>
     </qresource>
 </RCC>
