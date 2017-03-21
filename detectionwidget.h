@@ -13,6 +13,7 @@
 
 class QExposeEvent;
 class QOpenGLShaderProgram;
+class QOpenGLTexture;
 
 class DetectionWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
@@ -46,9 +47,11 @@ private:
     float fov;
 
     // OpenGL State Information
-    QOpenGLBuffer m_vertex;
+    QOpenGLBuffer m_vertices;
     QOpenGLVertexArrayObject m_object;
     QOpenGLShaderProgram *m_program;
+    QOpenGLTexture *m_texture;
+    int m_faces;
 
     // Shader Information
     int u_modelToWorld;
@@ -61,6 +64,7 @@ private:
 
     // Private Helpers
     void printVersionInformation();
+    bool loadObj(const char* path);
 };
 
 #endif // DETECTIONWIDGET_H

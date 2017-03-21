@@ -22,7 +22,8 @@ HEADERS  += mainwindow.h \
     detectionwidget.h \
     transform3d.h \
     vertex.h \
-    slamwidget.h
+    slamwidget.h \
+    vertexuv.h
 
 FORMS    += mainwindow.ui
 

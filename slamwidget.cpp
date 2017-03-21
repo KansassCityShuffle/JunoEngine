@@ -68,7 +68,7 @@ SlamWidget::SlamWidget()
     for (int i = 0; i < 2048; i++)
     for (int j = 0; j < 2048; j++)
     {
-        if (qrand() % 20 == 1) mapOffsets.append(QVector2D(i-1024,j-1024));
+        if (qrand() % 100 == 1) mapOffsets.append(QVector2D(i-1024,j-1024));
     }
 
 }
@@ -114,7 +114,7 @@ void SlamWidget::mouseReleaseEvent(QMouseEvent *event)
 
 void SlamWidget::wheelEvent(QWheelEvent *event)
 {
-    distance -= event->angleDelta().y() * 0.05f;
+    distance -= event->angleDelta().y() * 0.00125f * distance;
     if (distance < 2.f) distance = 2.f;
 }
 
