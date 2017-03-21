@@ -80,7 +80,7 @@ void DetectionWidget::initializeGL()
 
   // Application-specific initialization
   {
-    m_texture = new QOpenGLTexture(QImage(QString(":/textures/proj2.png")).mirrored());
+    m_texture = new QOpenGLTexture(QImage(QString(":/textures/proj.png")).mirrored());
 
     // Create Shader (Do not release until VAO is created)
     m_program = new QOpenGLShaderProgram();

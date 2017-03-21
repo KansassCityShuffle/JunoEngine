@@ -8,6 +8,5 @@
         <file>textures/proj.png</file>
         <file>shaders/det.frag</file>
         <file>shaders/det.vert</file>
-        <file>textures/proj2.png</file>
     </qresource>
 </RCC>
