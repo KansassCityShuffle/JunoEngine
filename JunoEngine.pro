@@ -23,7 +23,7 @@ HEADERS  += mainwindow.h \
     transform3d.h \
     vertex.h \
     slamwidget.h \
-    map.h
+    vertexuv.h
 
 FORMS    += mainwindow.ui
 

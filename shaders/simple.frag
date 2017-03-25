@@ -5,4 +5,5 @@ out highp vec4 fColor;
 void main()
 {
    fColor = vColor;
+   //fColor = vec4(vec3(gl_FragCoord.z), 1.0f);
 }

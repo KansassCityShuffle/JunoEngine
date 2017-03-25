@@ -6,10 +6,14 @@
 #include <QOpenGLBuffer>
 #include <QOpenGLVertexArrayObject>
 #include <QMatrix4x4>
+#include <QVector>
+#include <QVector2D>
+#include <QVector3D>
 #include "transform3d.h"
 
 class QExposeEvent;
 class QOpenGLShaderProgram;
+class QOpenGLTexture;
 
 class DetectionWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
@@ -17,34 +21,50 @@ class DetectionWidget : public QOpenGLWidget, protected QOpenGLFunctions
 
 
 public:
-  DetectionWidget();
-  void initializeGL();
-  void resizeGL(int width, int height);
-  void paintGL();
+    DetectionWidget();
+    void initializeGL();
+    void resizeGL(int width, int height);
+    void paintGL();
 protected slots:
-  void teardownGL();
-  void update();
+    void teardownGL();
+    void update();
+
+
 
 protected:
-  void exposeEvent(QExposeEvent *ev);
+    void mouseMoveEvent(QMouseEvent *event);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void wheelEvent(QWheelEvent *event);
 
 private:
-  // OpenGL State Information
-  QOpenGLBuffer m_vertex;
-  QOpenGLVertexArrayObject m_object;
-  QOpenGLShaderProgram *m_program;
+    // Controls information
+    bool rotateCam;
+    int prevMouseX;
+    int prevMouseY;
+    float angleX;
+    float angleY;
+    float fov;
 
-  // Shader Information
-  int u_modelToWorld;
-  int u_worldToView;
-  QMatrix4x4 m_projection;
-  Transform3D m_transform;
+    // OpenGL State Information
+    QOpenGLBuffer m_vertices;
+    QOpenGLVertexArrayObject m_object;
+    QOpenGLShaderProgram *m_program;
+    QOpenGLTexture *m_texture;
+    int m_faces;
 
-  // Fix for Windows
-  QRegion m_cachedRegion;
+    // Shader Information
+    int u_modelToWorld;
+    int u_worldToView;
+    QMatrix4x4 m_projection;
+    Transform3D m_transform;
 
-  // Private Helpers
-  void printVersionInformation();
+    // Fix for Windows
+    QRegion m_cachedRegion;
+
+    // Private Helpers
+    void printVersionInformation();
+    bool loadObj(const char* path);
 };
 
 #endif // DETECTIONWIDGET_H
