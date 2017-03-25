@@ -14,9 +14,20 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    renderwidget.cpp
+    detectionwidget.cpp \
+    transform3d.cpp \
+    slamwidget.cpp
 
 HEADERS  += mainwindow.h \
-    renderwidget.h
+    detectionwidget.h \
+    transform3d.h \
+    vertex.h \
+    slamwidget.h \
+    map.h
 
 FORMS    += mainwindow.ui
+
+DISTFILES +=
+
+RESOURCES += \
+    resources.qrc
