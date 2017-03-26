@@ -4,19 +4,25 @@
 #include <QExposeEvent>
 #include <QtGlobal>
 #include <QTime>
+#include <QKeyEvent>
 
 #include "slamwidget.h"
 #include "vertex.h"
 #include "map.h"
 
 // Front Verticies
-#define VERTEX_ORIGIN Vertex( QVector3D( 0.1f,  0.1f,  0.1f), QVector3D( 1.0f, 0.0f, 0.0f ) )
-#define VERTEX_XAXIS Vertex( QVector3D( 0.5f,  0.1f,  0.1f), QVector3D( 1.0f, 0.0f, 0.0f ) )
+#define VERTEX_X_ORIGIN Vertex( QVector3D( 0.5f,  0.5f,  0.5f ), QVector3D( 1.0f, 0.0f, 0.0f ) )
+#define VERTEX_Y_ORIGIN Vertex( QVector3D( 0.5f,  0.5f,  0.5f ), QVector3D( 0.0f, 1.0f, 0.0f ) )
+#define VERTEX_Z_ORIGIN Vertex( QVector3D( 0.5f,  0.5f,  0.5f ), QVector3D( 0.0f, 0.0f, 1.0f ) )
+#define VERTEX_X_AXIS Vertex( QVector3D( 1.5f,  0.5f,  0.5f ), QVector3D( 1.0f, 0.0f, 0.0f ) )
+#define VERTEX_Y_AXIS Vertex( QVector3D( 0.5f,  1.5f,  0.5f ), QVector3D( 0.0f, 1.0f, 0.0f ) )
+#define VERTEX_Z_AXIS Vertex( QVector3D( 0.5f,  0.5f,  1.5f ), QVector3D( 0.0f, 0.0f, 1.0f ) )
 
 // Create a colored cube
 static const Vertex sg_vertexes[] = {
-    VERTEX_ORIGIN,
-    VERTEX_XAXIS
+    VERTEX_X_ORIGIN, VERTEX_X_AXIS,
+    VERTEX_Y_ORIGIN, VERTEX_Y_AXIS,
+    VERTEX_Z_ORIGIN, VERTEX_Z_AXIS
 };
 
 #undef VERTEX_ORIGIN
@@ -26,6 +32,8 @@ static const Vertex sg_vertexes[] = {
  * OpenGL Events
  ******************************************************************************/
 
+#define R_SPEED 0.5f
+
 SlamWidget::SlamWidget()
 {
     angleX = 0.f;
@@ -33,14 +41,8 @@ SlamWidget::SlamWidget()
     fov = 70.f;
     distance = 20.f;
 
-    qsrand(QTime::currentTime().msec());
-
-    for (int i = 0; i < 2048; i++)
-    for (int j = 0; j < 2048; j++)
-    {
-        if (qrand() % 100 == 1) mapOffsets.append(QVector2D(i-1024,j-1024));
-    }
-
+    robot_position = QVector3D(0.0f, 0.0f, 0.0f);
+    robot_orientation = QVector4D(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
 void SlamWidget::mouseMoveEvent(QMouseEvent *event)
@@ -58,7 +60,6 @@ void SlamWidget::mouseMoveEvent(QMouseEvent *event)
 
         prevMouseX = event->x();
         prevMouseY = event->y();
-
     }
 }
 
@@ -145,12 +146,11 @@ void SlamWidget::resizeGL(int width, int height)
 
 void SlamWidget::paintGL()
 {
-
     m_projection.setToIdentity();
     m_projection.perspective(fov, this->width() / float(this->height()), 0.001f, 3000.0f);
     m_projection.lookAt(QVector3D(distance * cos(angleY) * cos(angleX),
                                   distance * sin(angleY),
-                                  distance * cos(angleY)*sin(angleX)),
+                                  distance * cos(angleY) * sin(angleX)),
                         QVector3D(0.f, 0.f, 0.f),
                         QVector3D(0.f, 1.f, 0.f));
 
@@ -159,10 +159,11 @@ void SlamWidget::paintGL()
     m_program->bind();
     m_program->setUniformValue(u_worldToView, m_projection);
     m_object.bind();
-    m_transform.setRotation(0.0f, 0.0f, 1.0f, 0.0f);
-    //m_transform.setTranslation((float)i, -1.0f, (float) (-j));
+    //m_transform.setRotation(0.0f, 0.0f, 1.0f, 0.0f);
+    m_transform.setRotation(robot_orientation.w(), robot_orientation.x(), robot_orientation.y(), robot_orientation.z());
+    m_transform.setTranslation((float)robot_position.x(), -1.0f, (float) robot_position.z());
     m_program->setUniformValue(u_modelToWorld, m_transform.toMatrix());
-    glDrawArrays(GL_LINE, 0, sizeof(sg_vertexes) / sizeof(sg_vertexes[0]));
+    glDrawArrays(GL_LINES, 0, sizeof(sg_vertexes) / sizeof(sg_vertexes[0]));
 
     m_object.release();
     m_program->release();
@@ -180,6 +181,34 @@ void SlamWidget::update()
 {
   // Schedule a redraw
   QOpenGLWidget::update();
+}
+
+void SlamWidget::keyPressEvent(QKeyEvent *event)
+{
+    if(event->key() == Qt::Key_Up)
+    {
+        robot_position.setX( robot_position.x() + R_SPEED * cos((double)robot_orientation.w()) );
+        robot_position.setZ( robot_position.z() + R_SPEED * sin((double)robot_orientation.w()) );
+    }
+    else if(event->key() == Qt::Key_Down)
+    {
+        robot_position.setX( robot_position.x() - R_SPEED * cos((double)robot_orientation.w()) );
+        robot_position.setZ( robot_position.z() - R_SPEED * sin((double)robot_orientation.w()) );
+    }
+    else if(event->key() == Qt::Key_Right)
+    {
+        robot_orientation.setY( 1.0f );
+        robot_orientation.setW( robot_orientation.w() - R_SPEED * 2 );
+    }
+    else if(event->key() == Qt::Key_Left)
+    {
+        robot_orientation.setY( 1.0f );
+        robot_orientation.setW( robot_orientation.w() + R_SPEED * 2);
+    }
+    else
+    {
+        qDebug() << "key pressed " << event->key();
+    }
 }
 
 /*******************************************************************************
